@@ -1,1 +1,90 @@
-# Code used to cause changing light due to kight brightness with ardunio
+# Code used to change the LED light due to light brightness with Arduino
+
+# Part 1
+# PWM Pin for LED
+const int ledPin = 9;
+
+# PWM Pin for button
+const int buttonPin = 2;
+
+# 4 levels of brightness
+int brightnessLevels[] = {255, 170, 85, 0, 85};
+int currentLevel = 0;
+bool lastButtonState = LOW;
+bool buttonPressed = false;
+
+
+void setup()
+{
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
+}
+
+void loop()
+{
+  
+  bool read = digitalRead(buttonPin);
+  
+  # Reset to 0 brightness if read = low
+  if (read == LOW) {
+    buttonPressed = false; 
+  }
+  
+  # otherwise, increment the level of brightness
+  if (read == HIGH && lastButtonState == LOW && !buttonPressed) {
+    buttonPressed = true;
+    currentLevel++; 
+    if (currentLevel > 3) {
+      currentLevel = 0;
+    }
+    analogWrite(ledPin, brightnessLevels[currentLevel]);
+
+    delay(200);
+  }
+
+  lastButtonState = read;
+}
+
+#######################################################################################
+
+# Part 2
+const int ldrPin = A0;
+const int redPin = 9;
+const int greenPin = 10;
+const int bluePin = 11;
+
+# Thresholds Brightness
+int darkThreshold = 900;
+int brightThreshold = 100;
+
+void setup()
+{
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  Serial.begin(9600); // for debugging
+}
+
+void loop()
+{
+  int ldrValue = analogRead(ldrPin);
+  Serial.println(ldrValue);
+
+  if (ldrValue > darkThreshold) {
+    # Dark environment - RED
+    setColor(255, 0, 0);
+  } else if (ldrValue < brightThreshold) {
+    # Bright environment - GREEN
+    setColor(0, 255, 0);
+  } else {
+    # Ambient - BLUE
+    setColor(0, 0, 255);
+  }
+  delay(200); // Slow the updates a bit
+}
+  void setColor(int red, int green, int blue) {
+  analogWrite(redPin, red);
+  analogWrite(greenPin, green);
+  analogWrite(bluePin, blue);
+ 
+}
